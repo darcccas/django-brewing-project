@@ -1,0 +1,77 @@
+{% extends 'user_base.html' %}
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Shared Product Details</h1>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-success">
+                <h2 class="h4 mb-0">{{ product.get_product_type_display }} </h2>
+            </div>
+            <div class="card-body text-white">
+
+                <p><strong>ABV:</strong> {{ product.abv }}%</p>
+                <p><strong>Description:</strong> {{ product.description|linebreaks }}</p>
+                <p><strong>Shared By:</strong> {{ shared_by.username }}</p>
+                <p><strong>Shared On:</strong> {{ shared_date|date:"Y, M d" }}</p>
+            </div>
+        </div>
+        <div class="mt-3">
+            <form id="likeForm" method="post" action="
+
+                    {% if user_has_liked %}{% url 'main:unlike_shared_product' shared_product_id %}{% else %}{% url 'main:like_shared_product' shared_product_id %}{% endif %}">
+                {% csrf_token %}
+                <button type="submit" class="btn {% if user_has_liked %}btn-danger{% else %}btn-primary{% endif %}">
+                    {% if user_has_liked %}Unlike{% else %}Like{% endif %}
+                </button>
+            </form>
+            <span id="likesCount" class="ml-2">{{ likes_count }} like{% if likes_count != 1 %}s{% endif %}</span>
+        </div>
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h3 class="h5 mb-0">Ingredients</h3>
+            </div>
+            <div class="card-body text-white">
+                {% if product.batch.batchingredient_set.all %}
+                    <ul>
+                        {% for ingredient in product.batch.batchingredient_set.all %}
+                            <li>{{ ingredient.ingredient.name }}
+                                - {{ ingredient.amount }} {{ ingredient.get_unit_display }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No ingredients recorded.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'main:shared_products' %}" class="btn btn-secondary">Back to Shared Products</a>
+        </div>
+    </div>
+    {% block extra_js %}
+        <script>
+            $(document).ready(function () {
+                $('#likeForm').on('submit', function (e) {
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: $(this).attr('action'),
+                        data: $(this).serialize(),
+                        success: function (response) {
+                            $('#likesCount').text(response.likes_count + ' like' + (response.likes_count !== 1 ? 's' : ''));
+                            var $button = $('#likeForm button');
+                            if ($button.text() === 'Like') {
+                                $button.text('Unlike').removeClass('btn-primary').addClass('btn-danger');
+                                $('#likeForm').attr('action', "{% url 'main:unlike_shared_product' shared_product_id %}");
+                            } else {
+                                $button.text('Like').removeClass('btn-danger').addClass('btn-primary');
+                                $('#likeForm').attr('action', "{% url 'main:like_shared_product' shared_product_id %}");
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

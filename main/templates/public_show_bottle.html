@@ -1,0 +1,38 @@
+{% extends 'public_base.html' %}
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 id="bottle-details" class="mb-4">Bottle Details</h1>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h2 id="bottle-information" class="h4 mb-0">Bottle Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Bottle Number:</strong> {{ bottle.bottle_number }}</p>
+                <p><strong>Volume:</strong> {{ bottle.volume }} liter</p>
+                <p><strong>Bottled Date:</strong> {{ bottle.date_bottled }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-success">
+                <h2 id="product-information" class="h4 mb-0">Product Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Product Type:</strong> {{ product.get_product_type_display }}</p>
+                <p><strong>ABV:</strong> {{ product.abv }}%</p>
+                <p><strong>Description:</strong> {{ product.description|linebreaks }}</p>
+            </div>
+        </div>
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-info">
+                <h2 id="batch-information" class="h4 mb-0">Batch Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Batch Number:</strong> {{ batch.batch_number }}</p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

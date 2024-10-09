@@ -1,0 +1,55 @@
+{% extends 'user_base.html' %}
+{% block content %}
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Finished Products</h1>
+
+        {% if finished_products %}
+            <div class="row">
+                {% for product in finished_products %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card bg-secondary h-100">
+                            <div class="card-header bg-primary">
+                                <h2 class="h5 mb-0">{{ product.get_product_type_display }}
+                                    - {{ product.serial_number }}</h2>
+                            </div>
+                            <div class="card-body text-white">
+                                <p><strong>Batch Number:</strong> {{ product.batch.batch_number }}</p>
+                                <p><strong>Start Date:</strong> {{ product.start_date }}</p>
+                                <p><strong>Finish Date:</strong> {{ product.finish_date }}</p>
+                                <p><strong>ABV:</strong> {{ product.abv }}%</p>
+                                <p><strong>Bottles:</strong> {{ product.bottles.count }}</p>
+                                <p><strong>Shared:</strong> {% if product.is_shared %}Yes{% else %}No{% endif %}</p>
+                            </div>
+                            <div class="card-footer bg-secondary border-top border-light">
+                                <a href="{% url 'main:view_finished_product' product.id %}" class="btn btn-info btn-sm">View
+                                    Details</a>
+                                {% if product.bottles.count == 0 %}
+                                    <a href="{% url 'main:bottle_product' product.id %}" class="btn btn-primary btn-sm">Add
+                                        Bottles</a>
+                                {% endif %}
+                                {% if not product.is_shared %}
+                                    <form method="post" action="{% url 'main:share_product' product.id %}"
+                                          style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm">Share</button>
+                                    </form>
+                                {% else %}
+                                    <span class="btn btn-secondary btn-sm disabled">Shared</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                You don't have any finished products yet. Start by finishing a batch!
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'main:list_batches' %}" class="btn btn-secondary">Back to Batches</a>
+        </div>
+    </div>
+
+{% endblock %}

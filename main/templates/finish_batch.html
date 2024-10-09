@@ -1,0 +1,94 @@
+{% extends 'user_base.html' %}
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Finish Batch: {{ batch.batch_number }}</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="card mb-4 bg-secondary">
+                <div class="card-header bg-primary">
+                    <h2 class="h4 mb-0">Finish Batch Details</h2>
+                </div>
+                <div class="card-body text-white">
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card mb-4 bg-secondary">
+                <div class="card-header bg-info">
+                    <h3 class="h5 mb-0">Batch Information</h3>
+                </div>
+                <div class="card-body text-white">
+                    <p><strong>Batch Number:</strong> {{ batch.batch_number }}</p>
+                    <p><strong>Start Date:</strong> {{ batch.start_date }}</p>
+                    <p><strong>Original Gravity:</strong> {{ batch.start_gravity }}</p>
+                    {% if batch.middle_gravity %}
+                        <p><strong>Middle Gravity:</strong> {{ batch.middle_gravity }}</p>
+                    {% endif %}
+                    {% if batch.final_gravity %}
+                        <p><strong>Final Gravity:</strong> {{ batch.final_gravity }}</p>
+                    {% endif %}
+                    {% if batch.abv %}
+                        <p><strong>Calculated ABV:</strong> {{ batch.abv }}%</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4 bg-secondary">
+                <div class="card-header bg-success">
+                    <h3 class="h5 mb-0">Ingredients</h3>
+                </div>
+                <div class="card-body text-white">
+                    {% if batch.batchingredient_set.all %}
+                        <ul>
+                            {% for ingredient in batch.batchingredient_set.all %}
+                                <li>{{ ingredient.ingredient.name }}
+                                    - {{ ingredient.amount }} {{ ingredient.get_unit_display }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No ingredients recorded.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4 bg-secondary">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="h5 mb-0">Process Entries</h3>
+                </div>
+                <div class="card-body text-white">
+                    {% if batch.process_entries.all %}
+                        <ul>
+                            {% for entry in batch.process_entries.all %}
+                                <li><strong>{{ entry.date }}:</strong> {{ entry.description }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No process entries recorded.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary mb-2">Finish Batch</button>
+                <a href="{% url 'main:view_batch' batch.id %}" class="btn btn-secondary mb-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

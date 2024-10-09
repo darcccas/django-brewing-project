@@ -1,0 +1,193 @@
+{% extends 'user_base.html' %}
+{% load static %}
+
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'main/css/edit_batch.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Edit Batch {{ batch.batch_number }}</h1>
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <h2 class="h4 mb-3">Batch Details</h2>
+                <div class="card bg-secondary">
+                    <div class="card-body">
+                        {% for field in batch_form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="mb-4">
+                <h2 class="h4 mb-3">Existing Ingredients</h2>
+                <div class="list-group ingredient-list" style="max-height: 300px; overflow-y: auto;">
+                    {% for ingredient in batch.batchingredient_set.all %}
+                        <div class="list-group-item bg-secondary text-white d-flex justify-content-between align-items-center">
+                <span class="text-truncate" style="max-width: 80%;">
+                    {{ ingredient.ingredient.name }} - {{ ingredient.amount }} {{ ingredient.get_unit_display }}
+                </span>
+                            <button type="button" class="btn btn-danger btn-sm delete-ingredient"
+                                    data-id="{{ ingredient.id }}">Delete
+                            </button>
+                        </div>
+                    {% empty %}
+                        <p class="list-group-item bg-secondary text-white">No ingredients added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="h4 mb-3">Add New Ingredients</h2>
+                {{ ingredient_formset.management_form }}
+                <div id="ingredient-formset">
+                    {% for form in ingredient_formset %}
+                        <div class="card bg-secondary mb-3 ingredient-form">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="{{ form.ingredient.id_for_label }}"
+                                               class="form-label">Ingredient:</label>
+                                        {{ form.ingredient }}
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="{{ form.amount.id_for_label }}" class="form-label">Amount:</label>
+                                        {{ form.amount }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="{{ form.unit.id_for_label }}" class="form-label">Unit:</label>
+                                        {{ form.unit }}
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="{{ form.new_ingredient.id_for_label }}" class="form-label">New
+                                            ingredient:</label>
+                                        {{ form.new_ingredient }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="add-ingredient" class="btn btn-info mt-2">Add Another Ingredient</button>
+            </div>
+
+
+            <div class="mb-4">
+                <h2 class="h4 mb-3">Existing Process Entries</h2>
+                <div class="list-group">
+                    {% for process in batch.process_entries.all %}
+                        <div class="list-group-item bg-secondary text-white d-flex justify-content-between align-items-center">
+                        <span class="text-truncate" style="max-width: 80%;">
+                            {{ process.date }} - {{ process.description|truncatechars:50 }}
+                        </span>
+                            <button type="button" class="btn btn-danger btn-sm delete-process"
+                                    data-id="{{ process.id }}">Delete
+                            </button>
+                        </div>
+                    {% empty %}
+                        <p>No process entries added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="h4 mb-3">Add New Process Entry</h2>
+                {{ process_formset.management_form }}
+                <div id="process-formset">
+                    {% for form in process_formset %}
+                        <div class="card bg-secondary mb-3 process-form">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="{{ form.date.id_for_label }}" class="form-label">Date:</label>
+                                        {{ form.date }}
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="{{ form.description.id_for_label }}"
+                                               class="form-label">Description:</label>
+                                        {{ form.description }}
+                                    </div>
+                                </div>
+                                <!-- Add more fields here if your ProcessEntry model has additional fields -->
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="add-process" class="btn btn-info mt-2">Add Another Process Entry</button>
+            </div>
+
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#add-ingredient').click(function () {
+                const form_idx = $('#id_ingredients-TOTAL_FORMS').val();
+                $('#ingredient-formset').append($('#ingredient-formset .ingredient-form:first').clone());
+                const newForm = $('#ingredient-formset .ingredient-form:last');
+                newForm.find('input, select, textarea').each(function () {
+                    const name = $(this).attr('name').replace('-0-', '-' + form_idx + '-');
+                    const id = 'id_' + name;
+                    $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+                });
+                newForm.find('label').each(function () {
+                    const newFor = $(this).attr('for').replace('-0-', '-' + form_idx + '-');
+                    $(this).attr('for', newFor);
+                });
+                $('#id_ingredients-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+            });
+
+            $('#add-process').click(function () {
+                const form_idx = $('#id_processes-TOTAL_FORMS').val();
+                $('#process-formset').append($('#process-formset .process-form:first').clone());
+                const newForm = $('#process-formset .process-form:last');
+                newForm.find('input, select, textarea').each(function () {
+                    const name = $(this).attr('name').replace('-0-', '-' + form_idx + '-');
+                    const id = 'id_' + name;
+                    $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+                });
+                newForm.find('label').each(function () {
+                    const newFor = $(this).attr('for').replace('-0-', '-' + form_idx + '-');
+                    $(this).attr('for', newFor);
+                });
+                $('#id_processes-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+            });
+
+            $('.delete-ingredient, .delete-process').click(function () {
+                const id = $(this).data('id');
+                const type = $(this).hasClass('delete-ingredient') ? 'ingredient' : 'process';
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'delete_' + type,
+                    value: id
+                }).appendTo('form');
+                $(this).closest('.list-group-item').remove();
+            });
+        });
+    </script>
+
+{% endblock %}

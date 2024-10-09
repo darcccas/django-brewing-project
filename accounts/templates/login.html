@@ -1,0 +1,108 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sign In - Wine & Mead App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .content {
+            text-align: center;
+            max-width: 300px;
+            width: 100%;
+        }
+        h1 {
+            margin: 0 0 25px 0;
+            font-size: 24px;
+            font-weight: normal;
+        }
+        .btn {
+            display: block;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 0;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            background-color: #34495e;
+            color: #ecf0f1;
+        }
+        .social-providers {
+            margin-top: 20px;
+        }
+        .social-providers a {
+            display: inline-block;
+            margin: 0 5px;
+        }
+        .cancel-link {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h1>Sign In</h1>
+            <form method="post" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+                <button type="submit" class="btn">Sign In</button>
+            </form>
+
+            {% get_providers as socialaccount_providers %}
+            {% if socialaccount_providers %}
+                <p>Or sign in with:</p>
+                <div class="social-providers">
+                    {% for provider in socialaccount_providers %}
+                        <a href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
+                           class="btn socialaccount_provider {{ provider.id }}">
+                            {{ provider.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% include "socialaccount/snippets/login_extra.html" %}
+            {% else %}
+                <p>If you have not created an account yet, please <a href="{% url 'accounts:register' %}">sign up</a> first.</p>
+            {% endif %}
+
+            <a href="{% url 'main:home' %}" class="cancel-link">Cancel</a>
+        </div>
+    </div>
+</body>
+</html>

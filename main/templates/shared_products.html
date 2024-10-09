@@ -1,0 +1,67 @@
+{% extends 'user_base.html' %}
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Shared Products</h1>
+
+        {% if top_liked_products %}
+
+            <div class="row">
+                {% for shared_product in top_liked_products %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card bg-secondary h-100">
+                            <div class="card-header bg-primary">
+                                <h5 class="mb-0">{{ shared_product.product.get_product_type_display }}</h5>
+                            </div>
+                            <div class="card-body text-white">
+                                <p><strong>ABV:</strong> {{ shared_product.product.abv }}%</p>
+                                <p><strong>Shared by:</strong> {{ shared_product.shared_by.username }}</p>
+                                <p><strong>Shared on:</strong> {{ shared_product.shared_date|date:"M d, Y" }}</p>
+                                <p><strong>Likes:</strong> {{ shared_product.likes_count }}</p>
+                            </div>
+                            <div class="card-footer bg-secondary border-top border-light">
+                                <a href="{% url 'main:view_shared_product' shared_product.product.id %}"
+                                   class="btn btn-info btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if other_shared_products %}
+            <h2 class="mb-3 mt-4">Other Shared Products</h2>
+            <div class="row">
+                {% for shared_product in other_shared_products %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card bg-secondary h-100">
+                            <div class="card-header bg-primary">
+                                <h5 class="mb-0">{{ shared_product.product.get_product_type_display }}</h5>
+                            </div>
+                            <div class="card-body text-white">
+                                <p><strong>ABV:</strong> {{ shared_product.product.abv }}%</p>
+                                <p><strong>Shared by:</strong> {{ shared_product.shared_by.username }}</p>
+                                <p><strong>Shared on:</strong> {{ shared_product.shared_date|date:"M d, Y" }}</p>
+                            </div>
+                            <div class="card-footer bg-secondary border-top border-light">
+                                <a href="{% url 'main:view_shared_product' shared_product.product.id %}"
+                                   class="btn btn-info btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if not top_liked_products and not other_shared_products %}
+            <div class="alert alert-info" role="alert">
+                No products have been shared with you yet.
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'main:list_finished_products' %}" class="btn btn-secondary">Back to Your Products</a>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    {% load static %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'main/images/favicon.svg' %}">
+    <link rel="alternate icon" type="image/png" href="{% static 'main/images/favicon.png' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+
+    {% block extra_css %}
+
+    {% endblock %}
+    {% block head_scripts %}
+
+    {% endblock %}
+    <style>
+        body {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .topnav {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            z-index: 1;
+            top: -100%;
+            left: 0;
+            background-color: #212529;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .topnav a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #ffffff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .topnav a:hover {
+            background-color: #495057;
+        }
+
+        .topnav .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        .openbtn {
+            font-size: 30px;
+            cursor: pointer;
+            background-color: transparent;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            position: fixed;
+            left: 10px;
+            top: 4px;
+            z-index: 2;
+            transition: 0.5s;
+        }
+
+        .logoutbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            position: fixed;
+            right: 10px;
+            top: 10px;
+            z-index: 2;
+            transition: 0.3s;
+        }
+
+        .logoutbtn:hover {
+            background-color: #c82333;
+        }
+
+        .main-content {
+            transition: margin-top .5s;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<div id="myTopnav" class="topnav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="{% url 'accounts:user_panel' %}">
+        <i class="fas fa-user"></i> User: {{ user.username }}
+    </a>
+    <a href="{% url 'main:list_batches' %}">
+        <i class="fas fa-layer-group"></i> Batches
+    </a>
+    <a href="{% url 'main:list_finished_products' %}">
+        <i class="fas fa-book"></i> Library
+    </a>
+    <a href="{% url 'main:shared_products' %}">
+        <i class="fas fa-people-arrows"></i> Community
+    </a>
+</div>
+
+<button id="menuBtn" class="openbtn" onclick="openNav()">&#9776;</button>
+<form action="{% url 'accounts:logout' %}" method="post" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" class="logoutbtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+</form>
+
+<div class="main-content" id="main">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function openNav() {
+        document.getElementById("myTopnav").style.top = "0";
+        document.getElementById("main").style.marginTop = "100%";
+        document.getElementById("menuBtn").style.top = "-50px";
+        document.querySelector(".logoutbtn").style.top = "-50px";
+    }
+
+    function closeNav() {
+        document.getElementById("myTopnav").style.top = "-100%";
+        document.getElementById("main").style.marginTop = "0";
+        document.getElementById("menuBtn").style.top = "10px";
+        document.querySelector(".logoutbtn").style.top = "10px";
+    }
+</script>
+</body>
+</html>

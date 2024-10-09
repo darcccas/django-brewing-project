@@ -1,0 +1,105 @@
+{% extends 'user_base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+    <h1 class="mb-4">Batch Details: {{ batch.batch_number }}</h1>
+
+    <div class="card mb-4 bg-secondary">
+        <div class="card-header bg-primary">
+            <h2 class="h4 mb-0">Batch Information</h2>
+        </div>
+        <div class="card-body text-white">
+            <p><strong>Batch Number:</strong> {{ batch.batch_number }}</p>
+            <p><strong>Start Date:</strong> {{ batch.start_date }}</p>
+            <p><strong>Start Gravity:</strong> {{ batch.start_gravity }}</p>
+            <p><strong>Middle Gravity:</strong> {{ batch.middle_gravity|default_if_none:"N/A" }}</p>
+            <p><strong>Final Gravity:</strong> {{ batch.final_gravity|default_if_none:"N/A" }}</p>
+            <p><strong>ABV:</strong> {% if batch.abv %}{{ batch.abv }}%{% else %}N/A{% endif %}</p>
+            <p><strong>Created by:</strong> {{ batch.creator.username }}</p>
+        </div>
+    </div>
+
+    <div class="card mb-4 bg-secondary">
+        <div class="card-header bg-primary">
+            <h2 class="h4 mb-0">Ingredients</h2>
+        </div>
+        <div class="card-body text-white">
+            {% if batch.batchingredient_set.all %}
+                <ul>
+                    {% for ingredient in batch.batchingredient_set.all %}
+                        <li>{{ ingredient.ingredient.name }} - {{ ingredient.amount }} {{ ingredient.unit }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No ingredients added yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4 bg-secondary">
+        <div class="card-header bg-primary">
+            <h2 class="h4 mb-0">Process Entries</h2>
+        </div>
+        <div class="card-body text-white">
+            {% if batch.process_entries.all %}
+                <ul>
+                    {% for entry in batch.process_entries.all %}
+                        <li><strong>{{ entry.date }}:</strong> {{ entry.description }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No process entries added yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'main:edit_batch' batch.id %}" class="btn btn-primary mb-2 mr-2">Edit Batch</a>
+        <a href="{% url 'main:list_batches' %}" class="btn btn-secondary mb-2 mr-2">Back to Batch List</a>
+        {% if not batch.is_finished %}
+            <a href="{% url 'main:finish_batch' batch.id %}" class="btn btn-success mb-2">Finish Batch</a>
+        {% else %}
+            <a href="{% url 'main:view_finished_product' batch.finished_product.id %}" class="btn btn-info mb-2">View
+                Finished Product</a>
+        {% endif %}
+    </div>
+
+    <div class="card mb-4 bg-secondary">
+        <div class="card-header bg-primary">
+            <h2 class="h4 mb-0">Batch QR Code</h2>
+        </div>
+        <div class="card-body text-white">
+            <img src="{% url 'main:generate_qr_code' 'batch' batch.id %}" id="qrcode" alt="Batch QR Code"
+                 class="img-fluid">
+            <div class="mt-2">
+                <button onclick="saveQRCode()" class="btn btn-success btn-sm">Save QR Code</button>
+                <button onclick="printQRCode()" class="btn btn-info btn-sm">Print QR Code</button>
+            </div>
+
+        </div>
+    </div>
+
+
+    {% block extra_js %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const batchUrl = window.location.origin + "{% url 'main:view_batch' batch.id %}";
+                document.getElementById('batchUrl').textContent = batchUrl;
+            });
+
+            function saveQRCode() {
+                const link = document.createElement('a');
+                link.download = 'batch_{{ batch.batch_number }}_qr.png';
+                link.href = document.getElementById('qrcode').src;
+                link.click();
+            }
+
+            function printQRCode() {
+                const win = window.open('');
+                win.document.write('<img src="' + document.getElementById('qrcode').src + '" onload="window.print();window.close()">');
+                win.focus();
+            }
+        </script>
+    {% endblock %}
+{% endblock %}
