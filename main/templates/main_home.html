@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <title>Wine & Mead App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .content {
+            text-align: center;
+            max-width: 300px;
+            width: 100%;
+        }
+        #logo {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+        h1 {
+            margin: 0 0 25px 0;
+            font-size: 24px;
+            font-weight: normal;
+        }
+        .btn {
+            display: block;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 0;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <img id="logo" src="{% static 'main/images/logo.png' %}" alt="Wine & Mead Logo">
+            <h1>Wine & Mead</h1>
+            <a href="{% url 'accounts:login' %}" class="btn">Login</a>
+            <a href="{% url 'accounts:register' %}" class="btn">Register</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% extends 'user_base.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'main/css/qrcode.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 id="bottle-details" class="mb-4">Bottle Details</h1>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h2 id="bottle-information" class="h4 mb-0">Bottle Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Bottle Number:</strong> {{ bottle.bottle_number }}</p>
+                <p><strong>Volume:</strong> {{ bottle.volume }} liter</p>
+                <p><strong>Bottled Date:</strong> {{ bottle.date_bottled }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-success">
+                <h2 id="product-information" class="h4 mb-0">Product Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Product Type:</strong> {{ product.get_product_type_display }}</p>
+                <p><strong>Serial Number:</strong> {{ product.serial_number }}</p>
+                <p><strong>Start Date:</strong> {{ product.start_date }}</p>
+                <p><strong>Finish Date:</strong> {{ product.finish_date }}</p>
+                <p><strong>ABV:</strong> {{ product.abv }}%</p>
+                <p><strong>Description:</strong> {{ product.description|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-info">
+                <h2 id="batch-information" class="h4 mb-0">Batch Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Batch Number:</strong> {{ batch.batch_number }}</p>
+                <p><strong>Batch Start Date:</strong> {{ batch.start_date }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h2 id="bottle-qr-code" class="h4 mb-0">Bottle QR Code</h2>
+            </div>
+            <div class="card-body text-white">
+                <img src="{% url 'main:generate_qr_code' 'bottle' bottle.id %}" id="qrcode" alt="Bottle QR Code"
+                     class="img-fluid">
+                <div class="mt-2">
+                    <button onclick="saveQRCode()" class="btn btn-success btn-sm">Save QR Code</button>
+                    <button onclick="printQRCode()" class="btn btn-info btn-sm">Print QR Code</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'main:view_finished_product' product.id %}" class="btn btn-secondary">Back to Product</a>
+        </div>
+    </div>
+
+    {% block extra_js %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const bottleUrl = window.location.origin + "{% url 'main:public_show_bottle' product.id bottle.id %}";
+                document.getElementById('bottleUrl').textContent = bottleUrl;
+            });
+
+            function saveQRCode() {
+                const link = document.createElement('a');
+                link.download = 'bottle_{{ bottle.bottle_number }}_qr.png';
+                link.href = document.getElementById('qrcode').src;
+                link.click();
+            }
+
+            function printQRCode() {
+                const win = window.open('');
+                win.document.write('<img src="' + document.getElementById('qrcode').src + '" onload="window.print();window.close()">');
+                win.focus();
+            }
+        </script>
+    {% endblock %}
+{% endblock %}

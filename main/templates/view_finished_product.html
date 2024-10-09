@@ -1,0 +1,129 @@
+{% extends 'user_base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Finished Product Details</h1>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-success">
+                <h2 class="h4 mb-0">{{ product.get_product_type_display }} - {{ product.serial_number }}</h2>
+            </div>
+            <div class="card-body text-white">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h5">Product Information</h3>
+                        <p><strong>Start Date:</strong> {{ product.start_date }}</p>
+                        <p><strong>Finish Date:</strong> {{ product.finish_date }}</p>
+                        <p><strong>ABV:</strong> {{ product.abv }}%</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h5">Batch Information</h3>
+                        <p><strong>Batch Number:</strong> {{ product.batch.batch_number }}</p>
+                        <p><strong>Batch Start Date:</strong> {{ product.batch.start_date }}</p>
+                    </div>
+                </div>
+                <h3 class="h5 mt-4">Description</h3>
+                <p>{{ product.description|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h3 class="h5 mb-0">Ingredients</h3>
+            </div>
+            <div class="card-body text-white">
+                {% if product.batch.batchingredient_set.all %}
+                    <ul>
+                        {% for ingredient in product.batch.batchingredient_set.all %}
+                            <li>{{ ingredient.ingredient.name }}
+                                - {{ ingredient.amount }} {{ ingredient.get_unit_display }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No ingredients recorded.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-info">
+                <h3 class="h5 mb-0">Process Entries</h3>
+            </div>
+            <div class="card-body text-white">
+                {% if product.batch.process_entries.all %}
+                    <ul>
+                        {% for entry in product.batch.process_entries.all %}
+                            <li><strong>{{ entry.date }}:</strong> {{ entry.description }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No process entries recorded.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h3 class="h5 mb-0">Product QR Code</h3>
+            </div>
+            <div class="card-body text-white">
+                <img src="{% url 'main:generate_qr_code' 'finished_product' product.id %}" id="qrcode"
+                     alt="Finished Product QR Code" class="img-fluid">
+                <div class="mt-2">
+                    <button onclick="saveQRCode()" class="btn btn-success btn-sm">Save QR Code</button>
+                    <button onclick="printQRCode()" class="btn btn-info btn-sm">Print QR Code</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="h5 mb-0">Bottles</h3>
+            </div>
+            <div class="card-body text-white">
+                {% if product.bottles.exists %}
+                    <ul>
+                        {% for bottle in product.bottles.all %}
+                            <li><a href="{% url 'main:show_bottle' product.id bottle.id %}"
+                                   class="text-white">Bottle {{ bottle.bottle_number }} - {{ bottle.volume }} liters</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No bottles recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'main:list_finished_products' %}" class="btn btn-secondary mr-2">Back to List</a>
+            {% if not product.bottles.exists %}
+                <a href="{% url 'main:bottle_product' product.id %}" class="btn btn-primary">Add Bottles</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% block extra_js %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const productUrl = window.location.origin + "{% url 'main:view_finished_product' product.id %}";
+                document.getElementById('productUrl').textContent = productUrl;
+            });
+
+            function saveQRCode() {
+                const link = document.createElement('a');
+                link.download = 'product_{{ product.serial_number }}_qr.png';
+                link.href = document.getElementById('qrcode').src;
+                link.click();
+            }
+
+            function printQRCode() {
+                const win = window.open('');
+                win.document.write('<img src="' + document.getElementById('qrcode').src + '" onload="window.print();window.close()">');
+                win.focus();
+            }
+        </script>
+    {% endblock %}
+{% endblock %}

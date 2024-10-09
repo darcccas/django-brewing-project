@@ -1,0 +1,48 @@
+{% extends 'user_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="content">
+        <img src="{% static 'main/images/logo.png' %}" alt="Wine & Mead App Logo" class="logo">
+        <h1>Welcome <strong>{{ request.user.username }}</strong></h1>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        min-height: 100vh;
+        padding: 60px 20px 20px;
+        box-sizing: border-box;
+    }
+    .content {
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+    }
+    .logo {
+        width: 150px;
+        margin-bottom: 20px;
+    }
+    h1 {
+        margin: 0 0 25px 0;
+        font-size: 24px;
+        font-weight: normal;
+        color: #ecf0f1;
+    }
+    p {
+        color: #ecf0f1;
+        font-size: 18px;
+    }
+    strong {
+        color: #3498db;
+    }
+</style>
+{% endblock %}

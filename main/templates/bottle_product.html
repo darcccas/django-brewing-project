@@ -1,0 +1,58 @@
+{% extends 'user_base.html' %}
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Add Bottles to {{ product.get_product_type_display }} - {{ product.serial_number }}</h1>
+
+        <div class="card mb-4 bg-secondary">
+            <div class="card-header bg-primary">
+                <h2 class="h4 mb-0">Product Information</h2>
+            </div>
+            <div class="card-body text-white">
+                <p><strong>Batch Number:</strong> {{ product.batch.batch_number }}</p>
+                <p><strong>Finish Date:</strong> {{ product.finish_date }}</p>
+                <p><strong>ABV:</strong> {{ product.abv }}%</p>
+            </div>
+        </div>
+
+        <form method="post" id="bottle-form">
+            {% csrf_token %}
+            <div class="card mb-4 bg-secondary">
+                <div class="card-header bg-success">
+                    <h2 class="h4 mb-0">Add Bottles</h2>
+                </div>
+                <div class="card-body text-white">
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <div class="bottle-form mb-3 p-3 border rounded">
+                            {{ form.id }}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.volume.label_tag }}
+                                        {{ form.volume }}
+                                        {% if form.volume.errors %}
+                                            <div class="alert alert-danger">
+                                                {{ form.volume.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" name="action" value="add_bottle" class="btn btn-secondary mr-2">Add Another
+                    Bottle
+                </button>
+                <button type="submit" name="action" value="save_bottles" class="btn btn-primary mr-2">Save Bottles
+                </button>
+                <a href="{% url 'main:view_finished_product' product.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

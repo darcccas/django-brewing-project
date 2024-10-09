@@ -1,0 +1,71 @@
+{% extends 'user_base.html' %}
+{% block content %}
+
+    <div class="container mt-4 p-4 bg-dark text-white rounded">
+        <h1 class="mb-4">Your Batches</h1>
+
+        <div class="mt-4">
+            <div class="row pb-3">
+                <div class="col-6 pe-1">
+                    <a href="{% url 'main:add_batch' %}" class="btn btn-primary w-100">Create Batch</a>
+                </div>
+                <div class="col-6 ps-1">
+                    <a href="{% url 'main:list_finished_products' %}" class="btn btn-secondary w-100">View Products</a>
+                </div>
+            </div>
+        </div>
+
+        {% if batches %}
+            <h2 class="mt-4">In Progress Batches</h2>
+            <div class="row">
+                {% for batch in batches %}
+                    {% if not batch.is_finished %}
+                        <div class="col-12 col-md-6 mb-4">
+                            <div class="card bg-secondary h-100">
+                                <div class="card-header bg-primary">
+                                    <h2 class="h5 mb-0">Batch {{ batch.batch_number }}</h2>
+                                </div>
+                                <div class="card-body text-white">
+                                    <p><strong>Start Date:</strong> {{ batch.start_date }}</p>
+                                    <p><strong>Start Gravity:</strong> {{ batch.start_gravity }}</p>
+                                    {% if batch.middle_gravity %}
+                                        <p><strong>Middle Gravity:</strong> {{ batch.middle_gravity }}</p>
+                                    {% endif %}
+                                    {% if batch.final_gravity %}
+                                        <p><strong>Final Gravity:</strong> {{ batch.final_gravity }}</p>
+                                    {% endif %}
+                                    {% if batch.abv %}
+                                        <p><strong>ABV:</strong> {{ batch.abv }}%</p>
+                                    {% endif %}
+                                    <p><strong>Status:</strong> In Progress</p>
+                                    <h3 class="h6 mt-3">Ingredients:</h3>
+                                    <ul>
+                                        {% for batch_ingredient in batch.batchingredient_set.all %}
+                                            <li>{{ batch_ingredient.ingredient.name }}
+                                                - {{ batch_ingredient.amount }} {{ batch_ingredient.get_unit_display }}</li>
+                                        {% empty %}
+                                            <li>No ingredients for this batch.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="card-footer bg-secondary border-top border-light">
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'main:view_batch' batch.id %}" class="btn btn-info btn-sm">View
+                                            Details</a>
+                                        <a href="{% url 'main:finish_batch' batch.id %}" class="btn btn-success btn-sm">Finish
+                                            Batch</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                You don't have any batches. Start by creating a new batch!
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
